@@ -101,3 +101,20 @@ Route::get('/final-setup', function() {
     Artisan::call('storage:link');
     return "Link storage berhasil dibuat! Gambar sekarang bisa muncul.";
 });
+
+Route::get('/clear-semua', function() {
+    // Membersihkan cache aplikasi
+    Artisan::call('optimize:clear');
+    
+    // Opsional: Jika kamu ingin menjalankan storage:link otomatis lewat sini
+    Artisan::call('storage:link');
+
+    return "
+        <div style='text-align:center; margin-top:50px; font-family:sans-serif;'>
+            <h1>🚀 Berhasil!</h1>
+            <p>Cache aplikasi, konfigurasi, dan rute telah dibersihkan.</p>
+            <p><strong>Laravel sekarang menggunakan pengaturan terbaru dari Railway.</strong></p>
+            <a href='" . url('/') . "' style='color:blue;'>Kembali ke Beranda</a>
+        </div>
+    ";
+});
