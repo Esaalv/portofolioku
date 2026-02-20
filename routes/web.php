@@ -96,28 +96,3 @@ Route::middleware(['is_admin'])->prefix('admin')->group(function () {
         Route::patch('/messages/{id}/read', 'markRead')->name('admin.messages.read');
     });
 });
-
-/*
-|--------------------------------------------------------------------------
-| Database Setup Route (Temporary)
-|--------------------------------------------------------------------------
-*/
-Route::get('/rahasia-setup-db', function() {
-    try {
-        // Menjalankan migrasi untuk membuat tabel
-        \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
-        
-        // Membuat user admin jika belum ada
-        if (\App\Models\User::count() == 0) {
-            $user = new \App\Models\User();
-            $user->name = 'Admin siroyo321';
-            $user->email = 'esacanoealviank@gmail.com';
-            $user->password = \Illuminate\Support\Facades\Hash::make('rahasia123');
-            $user->save();
-        }
-        
-        return "Berhasil! Tabel sudah dibuat dan akun admin 'esacanoealviank@gmail.com' siap digunakan.";
-    } catch (\Exception $e) {
-        return "Terjadi kesalahan: " . $e->getMessage();
-    }
-});
