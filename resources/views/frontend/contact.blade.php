@@ -20,7 +20,7 @@
             @endif --}}
 
             {{-- Ganti action ke URL Formspree --}}
-            <form action="https://formspree.io/f/{{ env('FORMSPREE_ID') }}" method="POST" class="space-y-6">
+            <form action="https://formspree.io/f/{{ env('FORMSPREE_URL') }}" method="POST" class="space-y-6">
                 @csrf
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
