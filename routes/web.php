@@ -13,7 +13,7 @@ use App\Http\Controllers\Admin\MessageController;
 
 /*
 |--------------------------------------------------------------------------
-| Frontend Routes
+|                           Frontend Routes
 |--------------------------------------------------------------------------
 */
 Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -27,7 +27,7 @@ Route::post('/contact', [ContactController::class, 'store'])->name('contact.stor
 
 /*
 |--------------------------------------------------------------------------
-| Admin Auth Routes (Public)
+|                           Admin Auth Routes (Public)
 |--------------------------------------------------------------------------
 */
 
@@ -37,7 +37,7 @@ Route::post('/admin/logout', [AdminAuthController::class, 'logout'])->name('admi
 
 /*
 |--------------------------------------------------------------------------
-| Admin Protected Routes (Middleware: is_admin)
+|                       Admin Protected Routes 
 |--------------------------------------------------------------------------
 */
 Route::middleware(['is_admin'])->prefix('admin')->group(function () {
@@ -99,23 +99,5 @@ Route::middleware(['is_admin'])->prefix('admin')->group(function () {
 
 Route::get('/final-setup', function() {
     Artisan::call('storage:link');
-    return "Link storage berhasil dibuat! Gambar sekarang bisa muncul.";
+    return "Link storage berhasil dibuat!";
 });
-
-Route::get('/clear-semua', function() {
-    // Membersihkan cache aplikasi
-    Artisan::call('optimize:clear');
-    
-    // Opsional: Jika kamu ingin menjalankan storage:link otomatis lewat sini
-    Artisan::call('storage:link');
-
-    return "
-        <div style='text-align:center; margin-top:50px; font-family:sans-serif;'>
-            <h1>🚀 Berhasil!</h1>
-            <p>Cache aplikasi, konfigurasi, dan rute telah dibersihkan.</p>
-            <p><strong>Laravel sekarang menggunakan pengaturan terbaru dari Railway.</strong></p>
-            <a href='" . url('/') . "' style='color:blue;'>Kembali ke Beranda</a>
-        </div>
-    ";
-});
-
