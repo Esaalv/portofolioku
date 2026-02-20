@@ -97,3 +97,7 @@ Route::middleware(['is_admin'])->prefix('admin')->group(function () {
     });
 });
 
+Route::get('/final-setup', function() {
+    Artisan::call('storage:link');
+    return "Link storage berhasil dibuat! Gambar sekarang bisa muncul.";
+});
