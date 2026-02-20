@@ -11,14 +11,16 @@
         </div>
 
         <div class="bg-white/10 backdrop-blur-md rounded-2xl p-8 border border-white/10 shadow-2xl">
-            <!-- @if(session('success'))
+            {{-- Bagian notifikasi dikomentari karena Formspree akan mengarahkan ke halaman sukses mereka sendiri --}}
+            {{-- @if(session('success'))
                 <div class="mb-6 p-4 bg-green-500/20 border border-green-500/50 rounded-xl text-green-400 text-sm flex items-center">
                     <i class="fas fa-check-circle mr-3"></i>
                     {{ session('success') }}
                 </div>
-            @endif -->
+            @endif --}}
 
-            <form action="{{ route('contact.store') }}" method="POST" class="space-y-6">
+            {{-- Ganti action ke URL Formspree --}}
+            <form action="https://formspree.io/f/{{ env('FORMSPREE_ID') }}" method="POST" class="space-y-6">
                 @csrf
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
@@ -27,7 +29,7 @@
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-300 mb-2">Email Address</label>
-                        <input type="email" name="email" required class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition-all" placeholder="example@gmail.com">
+                        <input type="email" name="_replyto" required class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition-all" placeholder="example@gmail.com">
                     </div>
                 </div>
 
@@ -40,6 +42,9 @@
                     <label class="block text-sm font-medium text-gray-300 mb-2">Message</label>
                     <textarea name="message" rows="5" required class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition-all" placeholder="Write your message here..."></textarea>
                 </div>
+
+                {{-- Opsi: Halaman Redirect Setelah Kirim --}}
+                <input type="hidden" name="_next" value="{{ route('home') }}">
 
                 <button type="submit" class="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold py-4 rounded-xl shadow-lg transform hover:-translate-y-1 transition-all">
                     <i class="fas fa-paper-plane mr-2"></i>Send Message Now
