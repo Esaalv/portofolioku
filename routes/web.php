@@ -97,7 +97,3 @@ Route::middleware(['is_admin'])->prefix('admin')->group(function () {
     });
 });
 
-Route::get('/link-storage', function () {
-    Artisan::call('storage:link');
-    return "Storage link created!";
-});
