@@ -20,6 +20,7 @@ class ContactController extends Controller
 
     public function store(Request $request)
     {
+        // brevo
         $validated = $request->validate([
             'name'    => 'required|string|max:255',
             'email'   => 'required|email|max:255',
@@ -27,24 +28,27 @@ class ContactController extends Controller
             'message' => 'required|string|min:5|max:5000',
         ]);
 
+        // save in dashboard
         $validated['ip_address'] = $request->ip();
-        
-    
-        Message::create($validated);
+        \App\Models\Message::create($validated);
 
-        // Send Email via SMTP Brevo
+        // send via smtp server
         try {
-            http::post("Pesan Baru dari: " . $request->name . "\nEmail: " . $request->email . "\nSubject: " . $request->subject . "\n\nIsi Pesan:\n" . $request->message, function ($message) use ($request) {
-                $message->to('esacanoealviank@gmail.com') // Email tujuan
-                        ->from(env('MAIL_FROM_ADDRESS'), env('MAIL_FROM_NAME'))
-                        ->subject('New Contact: ' . $request->subject);
-            });
+            \Illuminate\Support\Facades\Http::withHeaders([
+                'api-key' => env('BREVO_API_KEY'),
+                'Content-Type' => 'application/json',
+            ])->post('https://api.brevo.com/v3/smtp/email', [
+                'sender' => ['name' => 'siroyo321 Portfolio', 'email' => 'esacanoealviank@gmail.com'],
+                'to' => [['email' => 'esacanoealviank@gmail.com']],
+                'subject' => 'Pesan Baru: ' . $request->subject,
+                'textContent' => "Dari: {$request->name} ({$request->email})\n\n{$request->message}"
+            ]);
 
-            return redirect()->route('contact')->with('success', 'Pesan tersimpan dan email terkirim!');
+            return redirect()->route('contact')->with('success', 'Pesan terkirim ke email & dashboard!');
 
         } catch (\Exception $e) {
-            // Jika email gagal tapi database berhasil
-            return redirect()->route('contact')->with('success', 'Pesan tersimpan di dashboard (Email gagal: ' . $e->getMessage() . ')');
+            // Server Notif
+            return redirect()->route('contact')->with('success', 'Pesan tersimpan di sistem kami.');
         }
     }
 }
