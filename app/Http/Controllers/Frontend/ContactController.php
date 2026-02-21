@@ -7,7 +7,7 @@ use App\Models\Message;
 use App\Models\Profile;
 use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Mail; // WAJIB ADA
 
 class ContactController extends Controller
 {
@@ -20,42 +20,31 @@ class ContactController extends Controller
 
     public function store(Request $request)
     {
-        
         $validated = $request->validate([
             'name'    => 'required|string|max:255',
-            'email'   => 'required|email:rfc,dns|max:255',
+            'email'   => 'required|email|max:255',
             'subject' => 'required|string|max:255',
             'message' => 'required|string|min:5|max:5000',
-        ], [
-            'email.email' => 'Format email tidak valid atau domain tidak ditemukan.',
-            'message.min' => 'Pesan minimal harus 5 karakter.',
         ]);
 
-       
         $validated['ip_address'] = $request->ip();
+        
+    
         Message::create($validated);
 
+        // Send Email via SMTP Brevo
         try {
-            
-            
-            $response = Http::withoutVerifying()->post(env('FORMSPREE_URL'), [
-                'name'     => $request->name,
-                'email'    => $request->email,
-                'subject'  => $request->subject,
-                'message'  => $request->message,
-                '_subject' => 'Pesan Baru: ' . $request->subject,
-            ]);
+            Mail::raw("Pesan Baru dari: " . $request->name . "\nEmail: " . $request->email . "\nSubject: " . $request->subject . "\n\nIsi Pesan:\n" . $request->message, function ($message) use ($request) {
+                $message->to('esacanoealviank@gmail.com') // Email tujuan
+                        ->from(env('MAIL_FROM_ADDRESS'), env('MAIL_FROM_NAME'))
+                        ->subject('New Contact: ' . $request->subject);
+            });
 
-            if ($response->successful()) {
-                return redirect()->route('contact')->with('success', 'Pesan Anda telah mendarat di email saya!');
-            }
-            
-            // formspree
-            return redirect()->route('contact')->with('success', 'Pesan tersimpan di sistem kami.');
+            return redirect()->route('contact')->with('success', 'Pesan tersimpan dan email terkirim!');
 
         } catch (\Exception $e) {
-           
-            return redirect()->route('contact')->with('success', 'Terima kasih! Pesan Anda sudah terkirim ke database kami.');
+            // Jika email gagal tapi database berhasil
+            return redirect()->route('contact')->with('success', 'Pesan tersimpan di dashboard (Email gagal: ' . $e->getMessage() . ')');
         }
     }
 }
