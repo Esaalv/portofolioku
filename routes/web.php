@@ -101,3 +101,26 @@ Route::get('/final-setup', function() {
     Artisan::call('storage:link');
     return "Link storage berhasil dibuat!";
 });
+
+// --- RUTE RAHASIA CLEAR CACHE (PASTE INI) ---
+Route::get('/clear-semua', function() {
+    try {
+        // 1. Bersihkan semua cache (Konfigurasi, Route, View)
+        Artisan::call('optimize:clear');
+        
+        // 2. Buat ulang link storage agar gambar bisa diakses
+        Artisan::call('storage:link');
+
+        return "
+            <div style='text-align:center; margin-top:50px; font-family:sans-serif;'>
+                <h1 style='color: #2ecc71;'>🚀 Berhasil!</h1>
+                <p>Cache aplikasi telah dibersihkan dan Storage Link berhasil diperbarui.</p>
+                <p>Laravel sekarang menggunakan pengaturan SMTP terbaru dari Railway.</p>
+                <br>
+                <a href='" . url('/') . "' style='padding:10px 20px; background:#3498db; color:white; text-decoration:none; border-radius:5px;'>Kembali ke Beranda</a>
+            </div>
+        ";
+    } catch (\Exception $e) {
+        return "Terjadi kesalahan: " . $e->getMessage();
+    }
+});
