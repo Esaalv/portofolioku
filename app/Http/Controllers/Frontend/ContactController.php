@@ -38,17 +38,17 @@ class ContactController extends Controller
                 'api-key' => env('BREVO_API_KEY'),
                 'Content-Type' => 'application/json',
             ])->post('https://api.brevo.com/v3/smtp/email', [
-                'sender' => ['name' => 'siroyo321 Portfolio', 'email' => 'esacanoealviank@gmail.com'],
+                'sender' => ['name' => 'alviesa', 'email' => 'esacanoealviank@gmail.com'],
                 'to' => [['email' => 'esacanoealviank@gmail.com']],
                 'subject' => 'Pesan Baru: ' . $request->subject,
                 'textContent' => "Dari: {$request->name} ({$request->email})\n\n{$request->message}"
             ]);
 
-            return redirect()->route('contact')->with('success', 'Pesan terkirim ke email & dashboard!');
+            return redirect()->route('contact')->with('success', 'Terima Kasih Telah Menghubungi!');
 
         } catch (\Exception $e) {
             // Server Notif
-            return redirect()->route('contact')->with('success', 'Pesan tersimpan di sistem kami.');
+            return redirect()->route('contact')->with('success', 'Pesan Telah diterima terima kasih.');
         }
     }
 }
