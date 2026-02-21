@@ -34,7 +34,7 @@ class ContactController extends Controller
 
         // Send Email via SMTP Brevo
         try {
-            Mail::raw("Pesan Baru dari: " . $request->name . "\nEmail: " . $request->email . "\nSubject: " . $request->subject . "\n\nIsi Pesan:\n" . $request->message, function ($message) use ($request) {
+            http::post("Pesan Baru dari: " . $request->name . "\nEmail: " . $request->email . "\nSubject: " . $request->subject . "\n\nIsi Pesan:\n" . $request->message, function ($message) use ($request) {
                 $message->to('esacanoealviank@gmail.com') // Email tujuan
                         ->from(env('MAIL_FROM_ADDRESS'), env('MAIL_FROM_NAME'))
                         ->subject('New Contact: ' . $request->subject);
