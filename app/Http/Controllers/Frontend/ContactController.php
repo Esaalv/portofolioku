@@ -7,7 +7,7 @@ use App\Models\Message;
 use App\Models\Profile;
 use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Mail; // WAJIB ADA
+use Illuminate\Support\Facades\Mail; 
 
 class ContactController extends Controller
 {
