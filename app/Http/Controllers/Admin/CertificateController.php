@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Certificate;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 
 class CertificateController extends Controller
 {
@@ -54,9 +53,24 @@ class CertificateController extends Controller
         $validated['user_id'] = session('admin_user_id');
         $validated['is_featured'] = $request->boolean('is_featured');
         $validated['has_expiry'] = $request->boolean('has_expiry');
+        
         if ($request->hasFile('image')) {
-            $validated['image'] = $request->file('image')->store('certificates', 'public');
+            try {
+                $uploadedFile = cloudinary()->upload(
+                    $request->file('image')->getRealPath(),
+                    [
+                        'folder' => 'portfolio/certificates',
+                        'quality' => 'auto',
+                        'overwrite' => true,
+                        'resource_type' => 'auto'
+                    ]
+                );
+                $validated['image'] = $uploadedFile['secure_url'];
+            } catch (\Exception $e) {
+                return back()->with('error', 'Failed to upload image: ' . $e->getMessage());
+            }
         }
+        
         Certificate::create($validated);
         return redirect()->route('admin.certificates.index')->with('success', 'Certificate added successfully!');
     }
@@ -86,10 +100,24 @@ class CertificateController extends Controller
         ]);
         $validated['is_featured'] = $request->boolean('is_featured');
         $validated['has_expiry'] = $request->boolean('has_expiry');
+        
         if ($request->hasFile('image')) {
-            if ($certificate->image) Storage::disk('public')->delete($certificate->image);
-            $validated['image'] = $request->file('image')->store('certificates', 'public');
+            try {
+                $uploadedFile = cloudinary()->upload(
+                    $request->file('image')->getRealPath(),
+                    [
+                        'folder' => 'portfolio/certificates',
+                        'quality' => 'auto',
+                        'overwrite' => true,
+                        'resource_type' => 'auto'
+                    ]
+                );
+                $validated['image'] = $uploadedFile['secure_url'];
+            } catch (\Exception $e) {
+                return back()->with('error', 'Failed to upload image: ' . $e->getMessage());
+            }
         }
+        
         $certificate->update($validated);
         return redirect()->route('admin.certificates.index')->with('success', 'Certificate updated successfully!');
     }

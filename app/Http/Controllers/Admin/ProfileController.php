@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Profile;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 
 class ProfileController extends Controller
 {
@@ -56,11 +55,41 @@ class ProfileController extends Controller
             'resume' => 'nullable|mimes:pdf|max:5120',
         ]);
 
+        // Upload Avatar ke Cloudinary
         if ($request->hasFile('avatar')) {
-            $validated['avatar'] = $request->file('avatar')->store('avatars', 'public');
+            try {
+                $uploadedFile = cloudinary()->upload(
+                    $request->file('avatar')->getRealPath(),
+                    [
+                        'folder' => 'portfolio/avatars',
+                        'width' => 400,
+                        'height' => 400,
+                        'crop' => 'fill',
+                        'quality' => 'auto',
+                        'overwrite' => true,
+                        'resource_type' => 'auto'
+                    ]
+                );
+                $validated['avatar'] = $uploadedFile['secure_url'];
+            } catch (\Exception $e) {
+                return back()->with('error', 'Failed to upload avatar: ' . $e->getMessage());
+            }
         }
+
+        // Upload Resume ke Cloudinary
         if ($request->hasFile('resume')) {
-            $validated['resume'] = $request->file('resume')->store('resumes', 'public');
+            try {
+                $uploadedFile = cloudinary()->upload(
+                    $request->file('resume')->getRealPath(),
+                    [
+                        'folder' => 'portfolio/resumes',
+                        'resource_type' => 'auto'
+                    ]
+                );
+                $validated['resume'] = $uploadedFile['secure_url'];
+            } catch (\Exception $e) {
+                return back()->with('error', 'Failed to upload resume: ' . $e->getMessage());
+            }
         }
 
         $validated['user_id'] = session('admin_user_id');
@@ -103,13 +132,41 @@ class ProfileController extends Controller
             'resume' => 'nullable|mimes:pdf|max:5120',
         ]);
 
+        // Upload Avatar ke Cloudinary
         if ($request->hasFile('avatar')) {
-            if ($profile->avatar) Storage::disk('public')->delete($profile->avatar);
-            $validated['avatar'] = $request->file('avatar')->store('avatars', 'public');
+            try {
+                $uploadedFile = cloudinary()->upload(
+                    $request->file('avatar')->getRealPath(),
+                    [
+                        'folder' => 'portfolio/avatars',
+                        'width' => 400,
+                        'height' => 400,
+                        'crop' => 'fill',
+                        'quality' => 'auto',
+                        'overwrite' => true,
+                        'resource_type' => 'auto'
+                    ]
+                );
+                $validated['avatar'] = $uploadedFile['secure_url'];
+            } catch (\Exception $e) {
+                return back()->with('error', 'Failed to upload avatar: ' . $e->getMessage());
+            }
         }
+
+        // Upload Resume ke Cloudinary
         if ($request->hasFile('resume')) {
-            if ($profile->resume) Storage::disk('public')->delete($profile->resume);
-            $validated['resume'] = $request->file('resume')->store('resumes', 'public');
+            try {
+                $uploadedFile = cloudinary()->upload(
+                    $request->file('resume')->getRealPath(),
+                    [
+                        'folder' => 'portfolio/resumes',
+                        'resource_type' => 'auto'
+                    ]
+                );
+                $validated['resume'] = $uploadedFile['secure_url'];
+            } catch (\Exception $e) {
+                return back()->with('error', 'Failed to upload resume: ' . $e->getMessage());
+            }
         }
 
         $validated['available_for_hire'] = $request->boolean('available_for_hire');

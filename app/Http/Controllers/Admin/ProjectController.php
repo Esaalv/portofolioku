@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Project;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class ProjectController extends Controller
@@ -62,7 +61,20 @@ class ProjectController extends Controller
         $validated['slug'] = Str::slug($request->title) . '-' . Str::random(5);
 
         if ($request->hasFile('image')) {
-            $validated['image'] = $request->file('image')->store('projects', 'public');
+            try {
+                $uploadedFile = cloudinary()->upload(
+                    $request->file('image')->getRealPath(),
+                    [
+                        'folder' => 'portfolio/projects',
+                        'quality' => 'auto',
+                        'overwrite' => true,
+                        'resource_type' => 'auto'
+                    ]
+                );
+                $validated['image'] = $uploadedFile['secure_url'];
+            } catch (\Exception $e) {
+                return back()->with('error', 'Failed to upload image: ' . $e->getMessage());
+            }
         }
 
         Project::create($validated);
@@ -100,8 +112,20 @@ class ProjectController extends Controller
         $validated['is_featured'] = $request->boolean('is_featured');
 
         if ($request->hasFile('image')) {
-            if ($project->image) Storage::disk('public')->delete($project->image);
-            $validated['image'] = $request->file('image')->store('projects', 'public');
+            try {
+                $uploadedFile = cloudinary()->upload(
+                    $request->file('image')->getRealPath(),
+                    [
+                        'folder' => 'portfolio/projects',
+                        'quality' => 'auto',
+                        'overwrite' => true,
+                        'resource_type' => 'auto'
+                    ]
+                );
+                $validated['image'] = $uploadedFile['secure_url'];
+            } catch (\Exception $e) {
+                return back()->with('error', 'Failed to upload image: ' . $e->getMessage());
+            }
         }
 
         $project->update($validated);
