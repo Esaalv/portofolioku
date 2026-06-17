@@ -65,7 +65,7 @@ class CertificateController extends Controller
                         'public_id' => $this->generatePublicId($request->file('image')->getClientOriginalName()),
                     ]
                 );
-                $validated['image'] = $uploadedFile['secure_url'];
+                $validated['image'] = $uploadedFile->getSecurePath();
             } catch (\Exception $e) {
                 \Log::error('Certificate upload failed', ['error' => $e->getMessage()]);
                 return back()

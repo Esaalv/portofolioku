@@ -48,14 +48,11 @@ trait CloudinaryUploadHandler
                     'folder' => $uploadOptions['folder'] ?? 'portfolio'
                 ]);
 
-                $uploadedFile = cloudinary()->upload(
-                    $file->getRealPath(),
-                    $uploadOptions
-                );
+              $uploadedFile = $file->storeOnCloudinary($uploadOptions['folder'] ?? 'portfolio');
 
                 \Log::info("Cloudinary upload successful", [
-                    'public_id' => $uploadedFile['public_id'],
-                    'url' => $uploadedFile['secure_url']
+                    'public_id' => $uploadedFile->getPublicId(),
+                    'url' => $uploadedFile->getSecurePath()
                 ]);
 
                 return $uploadedFile;
