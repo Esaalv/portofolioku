@@ -4,10 +4,12 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Certificate;
+use App\Traits\CloudinaryUploadHandler;
 use Illuminate\Http\Request;
 
 class CertificateController extends Controller
 {
+    use CloudinaryUploadHandler;
     private function checkAuth()
     {
         if (!session('admin_logged_in')) return redirect()->route('admin.login');
@@ -56,18 +58,19 @@ class CertificateController extends Controller
         
         if ($request->hasFile('image')) {
             try {
-                $uploadedFile = cloudinary()->upload(
-                    $request->file('image')->getRealPath(),
+                $uploadedFile = $this->uploadToCloudinary(
+                    $request->file('image'),
                     [
                         'folder' => 'portfolio/certificates',
-                        'quality' => 'auto',
-                        'overwrite' => true,
-                        'resource_type' => 'auto'
+                        'public_id' => $this->generatePublicId($request->file('image')->getClientOriginalName()),
                     ]
                 );
                 $validated['image'] = $uploadedFile['secure_url'];
             } catch (\Exception $e) {
-                return back()->with('error', 'Failed to upload image: ' . $e->getMessage());
+                \Log::error('Certificate upload failed', ['error' => $e->getMessage()]);
+                return back()
+                    ->withInput()
+                    ->with('error', 'Failed to upload certificate image: ' . $e->getMessage());
             }
         }
         
@@ -96,25 +99,26 @@ class CertificateController extends Controller
             'has_expiry' => 'nullable|boolean',
             'category' => 'required|string|max:100',
             'is_featured' => 'nullable|boolean',
-            'image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+            'image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:10240',
         ]);
         $validated['is_featured'] = $request->boolean('is_featured');
         $validated['has_expiry'] = $request->boolean('has_expiry');
         
         if ($request->hasFile('image')) {
             try {
-                $uploadedFile = cloudinary()->upload(
-                    $request->file('image')->getRealPath(),
+                $uploadedFile = $this->uploadToCloudinary(
+                    $request->file('image'),
                     [
                         'folder' => 'portfolio/certificates',
-                        'quality' => 'auto',
-                        'overwrite' => true,
-                        'resource_type' => 'auto'
+                        'public_id' => $this->generatePublicId($request->file('image')->getClientOriginalName()),
                     ]
                 );
                 $validated['image'] = $uploadedFile['secure_url'];
             } catch (\Exception $e) {
-                return back()->with('error', 'Failed to upload image: ' . $e->getMessage());
+                \Log::error('Certificate upload failed', ['error' => $e->getMessage()]);
+                return back()
+                    ->withInput()
+                    ->with('error', 'Failed to upload certificate image: ' . $e->getMessage());
             }
         }
         

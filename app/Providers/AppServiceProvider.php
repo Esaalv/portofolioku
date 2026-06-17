@@ -27,7 +27,7 @@ class AppServiceProvider extends ServiceProvider
         // Url schema
        if (config('app.env') === 'production') {
         
-        URL::forceScheme('https');
+        URL::forceScheme('http');
     }
         View::composer('*', function ($view) {
             

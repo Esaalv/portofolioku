@@ -4,11 +4,13 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Project;
+use App\Traits\CloudinaryUploadHandler;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
 class ProjectController extends Controller
 {
+    use CloudinaryUploadHandler;
     private function checkAuth()
     {
         if (!session('admin_logged_in')) return redirect()->route('admin.login');
@@ -62,18 +64,19 @@ class ProjectController extends Controller
 
         if ($request->hasFile('image')) {
             try {
-                $uploadedFile = cloudinary()->upload(
-                    $request->file('image')->getRealPath(),
+                $uploadedFile = $this->uploadToCloudinary(
+                    $request->file('image'),
                     [
                         'folder' => 'portfolio/projects',
-                        'quality' => 'auto',
-                        'overwrite' => true,
-                        'resource_type' => 'auto'
+                        'public_id' => $this->generatePublicId($request->file('image')->getClientOriginalName()),
                     ]
                 );
                 $validated['image'] = $uploadedFile['secure_url'];
             } catch (\Exception $e) {
-                return back()->with('error', 'Failed to upload image: ' . $e->getMessage());
+                \Log::error('Project image upload failed', ['error' => $e->getMessage()]);
+                return back()
+                    ->withInput()
+                    ->with('error', 'Failed to upload project image: ' . $e->getMessage());
             }
         }
 
@@ -113,18 +116,19 @@ class ProjectController extends Controller
 
         if ($request->hasFile('image')) {
             try {
-                $uploadedFile = cloudinary()->upload(
-                    $request->file('image')->getRealPath(),
+                $uploadedFile = $this->uploadToCloudinary(
+                    $request->file('image'),
                     [
                         'folder' => 'portfolio/projects',
-                        'quality' => 'auto',
-                        'overwrite' => true,
-                        'resource_type' => 'auto'
+                        'public_id' => $this->generatePublicId($request->file('image')->getClientOriginalName()),
                     ]
                 );
                 $validated['image'] = $uploadedFile['secure_url'];
             } catch (\Exception $e) {
-                return back()->with('error', 'Failed to upload image: ' . $e->getMessage());
+                \Log::error('Project image upload failed', ['error' => $e->getMessage()]);
+                return back()
+                    ->withInput()
+                    ->with('error', 'Failed to upload project image: ' . $e->getMessage());
             }
         }
 
