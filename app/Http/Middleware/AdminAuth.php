@@ -16,6 +16,8 @@ class AdminAuth
         
         if (!session('admin_logged_in')) {
             
+            \Log::info('Admin session missing. Current session:', session()->all());
+
             return redirect()->route('admin.login')->with('error', 'Akses ditolak! Silakan login terlebih dahulu.');
         }
 
