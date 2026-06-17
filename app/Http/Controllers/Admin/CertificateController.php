@@ -48,7 +48,7 @@ class CertificateController extends Controller
             'has_expiry' => 'nullable|boolean',
             'category' => 'required|string|max:100',
             'is_featured' => 'nullable|boolean',
-            'image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+            'image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:10240',
         ]);
         $validated['user_id'] = session('admin_user_id');
         $validated['is_featured'] = $request->boolean('is_featured');
